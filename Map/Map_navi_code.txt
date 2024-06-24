@@ -1,0 +1,40 @@
+% Create a publisher
+mapPub = rospublisher('/map', 'sensor_msgs/NavSatFix');
+
+% Create a message
+mapMsg = rosmessage(mapPub);
+
+% Set the header information
+mapMsg.Header.FrameId = 'map';
+
+% Set the fix status
+mapMsg.Status.Status = 0;  % E.g., 0 for fix
+mapMsg.Status.Service = 1; % E.g., 1 for GPS
+
+% Set latitude, longitude, and altitude (initial values)
+mapMsg.Latitude = 37.7749;  % Example latitude
+mapMsg.Longitude = -122.4194; % Example longitude
+mapMsg.Altitude = 10.0;      % Example altitude
+
+% Set the position covariance and type (example values)
+mapMsg.PositionCovariance = [1, 0, 0, 0, 1, 0, 0, 0, 1];  % Example covariance
+mapMsg.PositionCovarianceType = mapMsg.COVARIANCETYPEUNKNOWN;
+
+% Send simulated location in a loop
+time = 0;
+while true
+    % Update the timestamp
+    navSatMsg.Header.Stamp = rostime('now');
+    
+    % Optionally update other fields if needed
+     mapMsg.Latitude = mapMsg.Latitude + 0.0001 * sin(0.01 * time); % Change lat-itude over time
+     mapMsg.Longitude = mapMsg.Longitude + 0.0001 * cos(0.01 * time); % Change longitude over time
+     mapMsg.Altitude = mapMsg.Altitude + 0.1 * sin(0.01 * time);    % Change al-titude over time
+    
+    % Publish the message
+    send(mapPub, mapMsg);
+    
+    % 5 fps
+    pause(0.5)
+    time = time + 0.5;
+end
